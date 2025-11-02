@@ -1,0 +1,21 @@
+{
+  "name": "saucedemo-smoke-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean:results": "rm -rf allure-results",
+    "test": "cypress run --browser chrome",
+    "report": "npm run clean:results && npm run test && allure generate allure-results --clean -o allure-report && allure open"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@bahmutov/cypress-esbuild-preprocessor": "^2.2.7",
+    "@shelex/cypress-allure-plugin": "^2.41.2",
+    "allure-cypress": "^3.4.2",
+    "cypress": "^12.14.0"
+  }
+}

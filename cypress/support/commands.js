@@ -1,25 +1,31 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+import { loginSelectors } from './selectors/loginSelectors';
+
+// ==================== FIXTURE COMMANDS ====================
+// Custom command to load users fixture
+Cypress.Commands.add('loadUsers', () => {
+  return cy.fixture('users').as('usersData');
+});
+
+// ==================== LOGIN COMMANDS ====================
+// Command to login with different user types
+Cypress.Commands.add('loginAs', function(userRole) {
+  const user = this.usersData.find(u => u.role === userRole);
+  if (!user) {
+    throw new Error(`User with role '${userRole}' not found`);
+  }
+  
+  cy.visit('/');
+  cy.get(loginSelectors.username).type(user.username);
+  cy.get(loginSelectors.password).type(user.password);
+  cy.get(loginSelectors.loginButton).click();
+});
+
+// Quick login command for standard user
+Cypress.Commands.add('loginAsStandardUser', () => {
+  cy.loginAs('valid');
+});
+
+// Quick login command for locked out user
+Cypress.Commands.add('loginAsLockedOutUser', () => {
+  cy.loginAs('locked');
+});

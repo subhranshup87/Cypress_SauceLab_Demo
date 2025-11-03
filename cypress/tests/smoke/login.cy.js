@@ -1,23 +1,20 @@
-import LoginPage from '../../support/pages/LoginPage';
+import { inventorySelectors } from '../../support/selectors/inventorySelectors';
+import { loginSelectors } from '../../support/selectors/loginSelectors';
 
 describe('Login Test', () => {
   beforeEach(() => {
-    cy.fixture('users').as('usersData');
+    cy.loadUsers();
   });
 
-  it('should login successfully with valid credentials', function () {
-    const validUser = this.usersData.find(user => user.role === 'valid');
-
-    LoginPage.visit();
-    LoginPage.login(validUser.username, validUser.password);
+  it('should login successfully with valid credentials', () => {
+    cy.loginAsStandardUser();
     cy.url().should('include', '/inventory.html');
+    cy.get(inventorySelectors.inventoryItem).should('have.length.greaterThan', 0);
   });
 
-  it('should show error for locked out user', function () {
-    const lockedUser = this.usersData.find(user => user.role === 'locked');
-
-    LoginPage.visit();
-    LoginPage.login(lockedUser.username, lockedUser.password);
-    cy.get('[data-test="error"]').should('contain', 'Sorry, this user has been locked out.');
+  it('should show error for locked out user', () => {
+    cy.loginAsLockedOutUser();
+    cy.get(loginSelectors.errorMessage).should('be.visible');
+    cy.get(loginSelectors.errorMessage).should('contain', 'locked out');
   });
 });

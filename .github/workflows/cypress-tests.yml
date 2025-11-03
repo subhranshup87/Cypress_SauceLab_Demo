@@ -42,7 +42,7 @@ jobs:
       run: npm install -g allure-commandline
       
     - name: Run Chrome Tests
-      run: CYPRESS_allure=true npx cypress run --browser chrome --spec cypress/tests/smoke/*.cy.js
+      run: npx cypress run --browser chrome --spec cypress/tests/smoke/*.cy.js
         
     - name: Generate Allure Report
       run: |

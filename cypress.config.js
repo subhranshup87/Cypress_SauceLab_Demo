@@ -5,7 +5,7 @@ const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 module.exports = defineConfig({
   e2e: {
     env: {
-      allure: process.env.CYPRESS_allure === 'true',
+      allure: true,
     },
     setupNodeEvents(on, config) {
       allureWriter(on, config);

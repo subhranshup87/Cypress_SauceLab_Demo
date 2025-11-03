@@ -27,7 +27,7 @@ jobs:
     
     strategy:
       matrix:
-        browser: [chrome]
+        browser: [chrome, electron]
       fail-fast: false
     
     steps:
@@ -138,7 +138,7 @@ jobs:
     - name: Upload to GitHub Pages
       uses: actions/upload-pages-artifact@v3
       with:
-        path: allure-report-chrome/
+        path: allure-report-electron/
         
     - name: Deploy to GitHub Pages
       id: deployment

@@ -32,10 +32,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
@@ -47,7 +47,7 @@ jobs:
       run: npm install -g allure-commandline
       
     - name: Run Cypress tests
-      uses: cypress-io/github-action@v5
+      uses: cypress-io/github-action@v6
       with:
         browser: ${{ matrix.browser }}
         spec: cypress/tests/smoke/*.cy.js
@@ -64,21 +64,21 @@ jobs:
         
     - name: Upload Allure Results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: allure-results-${{ matrix.browser }}
         path: allure-results/
         
     - name: Upload Cypress Videos
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cypress-videos-${{ matrix.browser }}
         path: cypress/videos/
         
     - name: Upload Cypress Screenshots
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cypress-screenshots-${{ matrix.browser }}
         path: cypress/screenshots/
@@ -90,10 +90,10 @@ jobs:
     
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       
     - name: Download all artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       
     - name: Install Allure CLI
       run: npm install -g allure-commandline
@@ -122,19 +122,19 @@ jobs:
         
     - name: Upload Combined Allure Report
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: combined-allure-report
         path: allure-report/
         
     - name: Setup Pages
-      uses: actions/configure-pages@v3
+      uses: actions/configure-pages@v4
       
     - name: Upload to GitHub Pages
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: allure-report/
         
     - name: Deploy to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v2
+      uses: actions/deploy-pages@v4

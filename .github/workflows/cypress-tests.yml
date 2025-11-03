@@ -2,7 +2,7 @@ name: Cypress SauceDemo Tests
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
   schedule:
@@ -42,10 +42,7 @@ jobs:
       run: npm install -g allure-commandline
       
     - name: Run Chrome Tests
-      run: |
-        echo "🔥 Running Cypress tests in Chrome..."
-        CYPRESS_allure=true npx cypress run --browser chrome --spec cypress/tests/smoke/*.cy.js
-        echo "Tests completed successfully"
+      run: npx cypress run --browser chrome --spec cypress/tests/smoke/*.cy.js
         
     - name: Generate Allure Report
       run: |
@@ -59,13 +56,6 @@ jobs:
       with:
         name: allure-report
         path: allure-report/
-        
-    - name: Upload Test Videos
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: cypress-videos
-        path: cypress/videos/
         
     - name: Upload Screenshots
       if: failure()

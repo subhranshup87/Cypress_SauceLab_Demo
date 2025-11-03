@@ -4,11 +4,7 @@ const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 
 module.exports = defineConfig({
   e2e: {
-    env: {
-      allure: process.env.CYPRESS_allure !== 'false',
-    },
     setupNodeEvents(on, config) {
-      // Always setup Allure - handle Electron issues differently
       allureWriter(on, config);
       on('file:preprocessor', createBundler());
       return config;

@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  cypress-tests:
+    build: .
+    container_name: cypress-saucedemo-tests
+    volumes:
+      - ./allure-results:/app/allure-results
+      - ./allure-report:/app/allure-report
+      - ./cypress/videos:/app/cypress/videos
+      - ./cypress/screenshots:/app/cypress/screenshots
+    environment:
+      - CYPRESS_baseUrl=https://www.saucedemo.com
+      - CYPRESS_CACHE_FOLDER=/root/.cache/Cypress
+      - DISPLAY=:99
+    networks:
+      - cypress-network
+    command: >
+      sh -c "
+        echo 'Starting Cypress tests...' &&
+        npm run test &&
+        echo 'Generating Allure report...' &&
+        allure generate allure-results --clean -o allure-report &&
+        echo 'Tests completed successfully!'
+      "
+
+networks:
+  cypress-network:
+    driver: bridge
+
+volumes:
+  cypress-cache:

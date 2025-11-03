@@ -11,13 +11,26 @@ on:
   workflow_dispatch:
     # Allow manual triggering
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   cypress-tests:
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
-        browser: [chrome, firefox]
+        browser: [chrome]
+        include:
+          - browser: firefox
+            experimental: true
       fail-fast: false
     
     steps:
@@ -36,14 +49,28 @@ jobs:
     - name: Install Allure CLI
       run: npm install -g allure-commandline
       
+    - name: Setup Firefox
+      if: matrix.browser == 'firefox'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y firefox-esr xvfb
+        # Start virtual display for Firefox
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+        sleep 3
+        firefox --version
+      
     - name: Run Cypress tests
       uses: cypress-io/github-action@v6
       with:
         browser: ${{ matrix.browser }}
         spec: cypress/tests/smoke/*.cy.js
         config: baseUrl=https://www.saucedemo.com
+        install: false
       env:
         CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+        DISPLAY: ${{ matrix.browser == 'firefox' && ':99' || '' }}
+      continue-on-error: ${{ matrix.experimental == true }}
         
     - name: Generate Allure Report
       if: always()
@@ -54,21 +81,21 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: allure-report-${{ matrix.browser }}
+        name: allure-report-${{ matrix.browser }}${{ matrix.experimental && '-experimental' || '' }}
         path: allure-report/
         
     - name: Upload Cypress Videos
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: cypress-videos-${{ matrix.browser }}
+        name: cypress-videos-${{ matrix.browser }}${{ matrix.experimental && '-experimental' || '' }}
         path: cypress/videos/
         
     - name: Upload Cypress Screenshots
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: cypress-screenshots-${{ matrix.browser }}
+        name: cypress-screenshots-${{ matrix.browser }}${{ matrix.experimental && '-experimental' || '' }}
         path: cypress/screenshots/
 
   docker-tests:

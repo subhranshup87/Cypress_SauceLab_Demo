@@ -6,14 +6,11 @@
   "scripts": {
     "clean:results": "rm -rf allure-results allure-report cypress/videos cypress/screenshots",
     "test": "cypress run --browser chrome",
-    "test:electron": "CYPRESS_allure=false cypress run --browser electron --config defaultCommandTimeout=10000,pageLoadTimeout=15000",
-    "test:electron:headless": "CYPRESS_allure=false cypress run --browser electron --headless --config defaultCommandTimeout=10000,pageLoadTimeout=15000",
-    "test:firefox": "cypress run --browser firefox",
+    "test:chrome": "cypress run --browser chrome",
+    "test:electron": "CYPRESS_allure=false cypress run --browser electron",
+    "test:both": "npm run test:chrome && npm run test:electron",
     "test:headless": "cypress run",
-    "test:docker": "./run-docker-tests.sh",
-    "report": "npm run clean:results && npm run test && allure generate allure-results --clean -o allure-report && allure open",
-    "docker:build": "docker build -t cypress-saucedemo-tests .",
-    "docker:run": "docker-compose up --build --abort-on-container-exit"
+    "report": "npm run clean:results && npm run test && allure generate allure-results --clean -o allure-report && allure open"
   },
   "keywords": [],
   "author": "",

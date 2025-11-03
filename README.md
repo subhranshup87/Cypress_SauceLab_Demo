@@ -1,20 +1,19 @@
 # Cypress SauceDemo Smoke Tests
 
-This project contains Cypress smoke tests for the SauceDemo web application with Allure reporting integration, Docker support, and automated CI/CD pipeline using GitHub Actions.
+This project contains Cypress smoke tests for the SauceDemo web application with Allure reporting integration and automated CI/CD pipeline using GitHub Actions.
 
 ## 🚀 Features
 
 - **Cypress E2E Tests**: Comprehensive smoke tests for SauceDemo application
+- **Cross-Browser Testing**: Support for Chrome and Electron browsers
 - **Allure Reporting**: Beautiful HTML reports with test results, screenshots, and videos
-- **Docker Support**: Containerized test execution for consistent environments
 - **GitHub Actions CI/CD**: Automated testing on multiple browsers with artifact publishing
-- **Cross-Browser Testing**: Support for Chrome and Firefox browsers
+- **GitHub Pages**: Automated report deployment
 - **Scheduled Testing**: Daily automated test runs
 
 ## 📋 Prerequisites
 
 - Node.js 18+ and npm
-- Docker and Docker Compose (for containerized testing)
 - Allure CLI (for local report generation)
 
 ## 🛠️ Setup
@@ -37,121 +36,54 @@ This project contains Cypress smoke tests for the SauceDemo web application with
    npm install -g allure-commandline
    ```
 
-### Docker Setup
-
-1. **Build Docker image:**
-   ```bash
-   npm run docker:build
-   ```
-
-2. **Or use Docker Compose:**
-   ```bash
-   docker-compose build
-   ```
-
 ## 🧪 Running Tests
 
 ### Local Execution
 
-1. **Run all tests:**
+1. **Run Chrome tests:**
    ```bash
-   npm run test
+   npm run test:chrome
    ```
 
-2. **Run tests in different browsers:**
+2. **Run Electron tests:**
    ```bash
-   npm run test:firefox    # Firefox browser
-   npm run test:headless   # Headless Chrome
+   npm run test:electron
    ```
 
-3. **Run specific test:**
+3. **Run both browsers:**
    ```bash
-   npx cypress run --spec "cypress/tests/smoke/login.cy.js"
+   npm run test:both
    ```
 
-4. **Run tests with complete reporting:**
+4. **Run with complete reporting:**
    ```bash
    npm run report
    ```
 
-### Docker Execution
-
-1. **Using shell script:**
+5. **Run specific test:**
    ```bash
-   ./run-docker-tests.sh
-   ```
-
-2. **Using npm script:**
-   ```bash
-   npm run test:docker
-   ```
-
-3. **Using Docker Compose:**
-   ```bash
-   npm run docker:run
+   npx cypress run --spec "cypress/tests/smoke/login.cy.js"
    ```
 
 ## 📊 Reports
 
 ### Allure Reports
 
-1. **Generate report:**
+1. **Generate and view report:**
    ```bash
-   npm run report:generate
+   npm run report
    ```
 
-2. **Open report:**
-   ```bash
-   npm run report:open
-   ```
-
-3. **View report after Docker run:**
-   ```bash
-   allure open allure-report
-   ```
-
-### CI/CD Reports
-
-- Reports are automatically generated and published as GitHub Pages
-- Artifacts include test videos, screenshots, and HTML reports
-- Access reports from the Actions tab in your GitHub repository
-
-## 🐳 Docker Usage
-
-### Available Docker Commands
-
-```bash
-# Build image
-npm run docker:build
-
-# Run tests in container
-npm run docker:run
-
-# Clean up Docker resources
-npm run docker:clean
-```
-
-### Manual Docker Commands
-
-```bash
-# Build image
-docker build -t cypress-saucedemo-tests .
-
-# Run tests
-docker run --rm \
-  -v $(pwd)/allure-results:/app/allure-results \
-  -v $(pwd)/allure-report:/app/allure-report \
-  cypress-saucedemo-tests
-
-# Run with Docker Compose
-docker-compose up --build --abort-on-container-exit
-```
+2. **Access CI reports:**
+   - Reports are automatically generated and published as GitHub Pages
+   - Artifacts include test videos, screenshots, and HTML reports
+   - Access reports from the Actions tab in your GitHub repository
 
 ## ⚙️ GitHub Actions
 
 ### Workflow Features
 
-- **Multi-browser testing**: Chrome and Firefox
+- **Multi-browser testing**: Chrome and Electron in parallel
 - **Scheduled runs**: Daily at 9 AM UTC
 - **Manual triggers**: Workflow dispatch
 - **Artifact uploads**: Reports, videos, and screenshots
@@ -166,9 +98,9 @@ docker-compose up --build --abort-on-container-exit
 
 ### Secrets Configuration
 
-Add the following secrets to your GitHub repository:
+Add the following secrets to your GitHub repository (optional):
 
-- `CYPRESS_RECORD_KEY`: (Optional) For Cypress Dashboard integration
+- `CYPRESS_RECORD_KEY`: For Cypress Dashboard integration
 
 ## 📁 Project Structure
 
@@ -184,12 +116,9 @@ Cypress_SauceLab_Demo/
 │       └── smoke/               # Smoke test suite
 ├── allure-results/              # Test execution results
 ├── allure-report/               # Generated HTML reports
-├── Dockerfile                   # Docker image configuration
-├── docker-compose.yml           # Docker Compose configuration
 ├── cypress.config.js            # Cypress configuration
 ├── package.json                 # Node.js dependencies and scripts
-├── run-tests.sh                 # Local test execution script
-└── run-docker-tests.sh          # Docker test execution script
+└── README.md                    # This file
 ```
 
 ## 🔧 Configuration
@@ -199,15 +128,13 @@ Cypress_SauceLab_Demo/
 Key configurations in `cypress.config.js`:
 - Base URL: `https://www.saucedemo.com`
 - Spec pattern: `cypress/tests/smoke/*.cy.js`
-- Allure reporting enabled
+- Allure reporting enabled (disabled for Electron to prevent conflicts)
 - Default timeouts configured
 
-### Docker Configuration
+### Browser-Specific Settings
 
-- Base image: `cypress/included:13.15.0`
-- Includes Chrome browser and Node.js
-- Allure CLI pre-installed
-- Volume mounts for results and reports
+- **Chrome**: Full Allure reporting enabled
+- **Electron**: Allure disabled for better performance and stability
 
 ## 🐛 Troubleshooting
 
@@ -217,10 +144,9 @@ Key configurations in `cypress.config.js`:
    - Ensure `@shelex/cypress-allure-plugin` is imported in `cypress/support/e2e.js`
    - Check that the plugin is properly configured in `cypress.config.js`
 
-2. **Docker build fails:**
-   - Ensure Docker is running
-   - Check network connectivity for npm installs
-   - Verify Dockerfile syntax
+2. **Electron tests hanging:**
+   - Allure plugin is automatically disabled for Electron
+   - Use `npm run test:electron` for optimized Electron testing
 
 3. **Tests fail in CI:**
    - Check browser compatibility
@@ -242,11 +168,8 @@ npx cypress verify
 # Debug test in interactive mode
 npx cypress open
 
-# Verbose Docker build
-docker build --no-cache -t cypress-saucedemo-tests .
-
-# Check Docker logs
-docker-compose logs
+# Run tests with debug output
+DEBUG=cypress:* npm run test
 ```
 
 ## 📈 Continuous Integration
@@ -269,16 +192,16 @@ Recommended branch protection rules:
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests locally
+4. Run tests locally: `npm run test:both`
 5. Submit a pull request
 
 ## 📝 Notes
 
 - Tests run against the live SauceDemo application
-- Allure integration provides detailed test reporting
-- Docker ensures consistent test environments
+- Allure integration provides detailed test reporting for Chrome
 - GitHub Actions provides automated CI/CD pipeline
-- Reports are preserved as artifacts for analysis
+- Reports are preserved as artifacts and deployed to GitHub Pages
+- Cross-browser testing ensures compatibility across different environments
 
 ---
 

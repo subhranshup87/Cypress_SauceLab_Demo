@@ -1,4 +1,2 @@
-// Only import Allure plugin if not disabled
-if (Cypress.env('allure') !== false) {
-  import('@shelex/cypress-allure-plugin');
-}
+// Always import Allure plugin - we'll handle browser-specific issues differently
+import '@shelex/cypress-allure-plugin';

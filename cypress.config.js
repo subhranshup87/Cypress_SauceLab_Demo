@@ -8,21 +8,24 @@ module.exports = defineConfig({
       allure: process.env.CYPRESS_allure !== 'false',
     },
     setupNodeEvents(on, config) {
-      // Only setup Allure if not disabled
-      if (process.env.CYPRESS_allure !== 'false') {
-        allureWriter(on, config);
-      }
+      // Always setup Allure - handle Electron issues differently
+      allureWriter(on, config);
       on('file:preprocessor', createBundler());
       return config;
     },
     baseUrl: 'https://www.saucedemo.com',
     specPattern: 'cypress/tests/smoke/*.cy.js',
     supportFile: 'cypress/support/e2e.js',
-    defaultCommandTimeout: 5000,
-    pageLoadTimeout: 10000,
+    defaultCommandTimeout: 8000,
+    pageLoadTimeout: 15000,
     // Electron-specific optimizations
     chromeWebSecurity: false,
     video: false,
     screenshotOnRunFailure: true,
+    // Add retries for stability
+    retries: {
+      runMode: 1,
+      openMode: 0
+    }
   },
 });

@@ -53,21 +53,27 @@ jobs:
         spec: cypress/tests/smoke/*.cy.js
         config: baseUrl=https://www.saucedemo.com
         install: false
+        command: npx cypress run --browser ${{ matrix.browser }} --spec cypress/tests/smoke/*.cy.js
       env:
-        # Disable Allure for Electron to prevent conflicts
-        CYPRESS_allure: ${{ matrix.browser == 'electron' && 'false' || 'true' }}
+        # Enable Allure for both browsers - we'll handle Electron issues in config
+        CYPRESS_allure: true
         
-    - name: Generate Allure Report
-      if: always() && matrix.browser == 'chrome'
+    - name: Rename results for browser
+      if: always()
       run: |
-        echo "Skipping individual report generation - will combine later"
+        if [ -d "allure-results" ]; then
+          mkdir -p allure-results-${{ matrix.browser }}
+          cp -r allure-results/* allure-results-${{ matrix.browser }}/
+          # Add browser info to results
+          echo '{"name":"Browser","value":"${{ matrix.browser }}"}' > allure-results-${{ matrix.browser }}/environment.properties
+        fi
         
     - name: Upload Allure Results
       if: always()
       uses: actions/upload-artifact@v4
       with:
         name: allure-results-${{ matrix.browser }}
-        path: allure-results/
+        path: allure-results-${{ matrix.browser }}/
         
     - name: Upload Cypress Videos
       if: failure()
@@ -101,14 +107,28 @@ jobs:
     - name: Combine Allure Results
       run: |
         mkdir -p combined-allure-results
-        # Copy Chrome results (with Allure data)
+        echo "📊 Combining results from both browsers..."
+        
+        # Copy Chrome results
         if [ -d "allure-results-chrome" ]; then
+          echo "✅ Found Chrome results"
           cp -r allure-results-chrome/* combined-allure-results/ 2>/dev/null || true
+          ls -la allure-results-chrome/
+        else
+          echo "❌ No Chrome results found"
         fi
-        # Copy Electron results (basic results without Allure conflicts)
+        
+        # Copy Electron results  
         if [ -d "allure-results-electron" ]; then
+          echo "✅ Found Electron results"
           cp -r allure-results-electron/* combined-allure-results/ 2>/dev/null || true
+          ls -la allure-results-electron/
+        else
+          echo "❌ No Electron results found"
         fi
+        
+        echo "📁 Combined results:"
+        ls -la combined-allure-results/
         
     - name: Generate Combined Allure Report
       run: |

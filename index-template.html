@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cypress Cross-Browser Test Reports</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .reports {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .report-card {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+            min-width: 200px;
+            transition: transform 0.2s;
+        }
+        .report-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .electron {
+            background: #2196F3;
+        }
+        .report-card h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        .description {
+            margin-top: 30px;
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Cypress Cross-Browser Test Reports</h1>
+        
+        <div class="reports">
+            <a href="chrome/index.html" class="report-card chrome">
+                <h2>🔥 Chrome Tests</h2>
+                <p>View Chrome browser test results</p>
+            </a>
+            
+            <a href="electron/index.html" class="report-card electron">
+                <h2>⚡ Electron Tests</h2>
+                <p>View Electron browser test results</p>
+            </a>
+        </div>
+        
+        <div class="description">
+            <p>Select a browser above to view detailed test results.</p>
+            <p>Each report contains the complete test execution details for that specific browser.</p>
+        </div>
+    </div>
+</body>
+</html>

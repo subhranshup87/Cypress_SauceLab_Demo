@@ -62,32 +62,41 @@ jobs:
         CYPRESS_allure=true npx cypress run --browser electron --spec cypress/tests/smoke/*.cy.js
         echo "Electron tests completed with $(ls allure-results/*.json | wc -l) result files"
         
-    - name: Generate Separate Reports
+    - name: Combine Results
       run: |
-        echo "📊 Generating Chrome report..."
-        allure generate allure-results-chrome --clean -o chrome-report
+        echo "� Combining all results..."
+        mkdir -p combined-results
         
-        echo "📊 Generating Electron report..."
-        allure generate allure-results --clean -o electron-report
+        # Add Chrome results with browser tag
+        for file in allure-results-chrome/*; do
+          if [[ "$file" == *.json ]]; then
+            filename=$(basename "$file")
+            cp "$file" "combined-results/chrome-$filename"
+          fi
+        done
         
-        echo "✅ Both reports generated successfully"
+        # Add Electron results with browser tag
+        for file in allure-results/*; do
+          if [[ "$file" == *.json ]]; then
+            filename=$(basename "$file")
+            cp "$file" "combined-results/electron-$filename"
+          fi
+        done
         
-    - name: Create Reports Structure
+        echo "Combined: $(ls combined-results/ | wc -l) files"
+        ls -la combined-results/
+        
+    - name: Generate Report
       run: |
-        mkdir -p reports
-        mv chrome-report reports/chrome
-        mv electron-report reports/electron
-        cp index-template.html reports/index.html
-        
-        echo "📁 Reports structure created:"
-        find reports -name "index.html" | head -3
+        allure generate combined-results --clean -o allure-report
+        echo "Report generated successfully"
         
     - name: Upload Report
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: cross-browser-reports
-        path: reports/
+        name: allure-report
+        path: allure-report/
         
     - name: Setup Pages
       uses: actions/configure-pages@v4

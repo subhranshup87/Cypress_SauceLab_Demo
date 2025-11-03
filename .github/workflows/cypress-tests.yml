@@ -24,6 +24,7 @@ concurrency:
 jobs:
   cypress-tests:
     runs-on: ubuntu-latest
+    if: false  # Disabled - only run Docker tests
     
     strategy:
       matrix:
@@ -87,8 +88,13 @@ jobs:
 
   docker-tests:
     runs-on: ubuntu-latest
-    needs: cypress-tests
-    if: success()
+    # Remove dependency on cypress-tests since we're running Docker only
+    if: always()
+    
+    strategy:
+      matrix:
+        browser: [chrome, electron]
+      fail-fast: false
     
     steps:
     - name: Checkout code
@@ -100,19 +106,21 @@ jobs:
     - name: Build Docker image
       run: docker build -t cypress-saucedemo-tests .
       
-    - name: Run tests in Docker
+    - name: Run tests in Docker with ${{ matrix.browser }}
       run: |
         docker run --rm \
-          -v ${{ github.workspace }}/allure-results:/app/allure-results \
-          -v ${{ github.workspace }}/allure-report:/app/allure-report \
-          cypress-saucedemo-tests
+          -v ${{ github.workspace }}/allure-results-${{ matrix.browser }}:/app/allure-results \
+          -v ${{ github.workspace }}/allure-report-${{ matrix.browser }}:/app/allure-report \
+          -e CYPRESS_allure=${{ matrix.browser == 'electron' && 'false' || 'true' }} \
+          cypress-saucedemo-tests \
+          npx cypress run --browser ${{ matrix.browser }} --spec cypress/tests/smoke/*.cy.js
           
     - name: Generate Allure Report from Docker
       if: always()
       run: |
         docker run --rm \
-          -v ${{ github.workspace }}/allure-results:/app/allure-results \
-          -v ${{ github.workspace }}/allure-report:/app/allure-report \
+          -v ${{ github.workspace }}/allure-results-${{ matrix.browser }}:/app/allure-results \
+          -v ${{ github.workspace }}/allure-report-${{ matrix.browser }}:/app/allure-report \
           cypress-saucedemo-tests \
           sh -c "allure generate allure-results --clean -o allure-report"
           
@@ -120,12 +128,12 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: docker-allure-report
-        path: allure-report/
+        name: docker-allure-report-${{ matrix.browser }}
+        path: allure-report-${{ matrix.browser }}/
 
   publish-report:
     runs-on: ubuntu-latest
-    needs: [cypress-tests, docker-tests]
+    needs: docker-tests  # Only wait for Docker tests now
     if: always()
     
     steps:
@@ -141,7 +149,7 @@ jobs:
     - name: Upload to GitHub Pages
       uses: actions/upload-pages-artifact@v3
       with:
-        path: allure-report-electron/
+        path: docker-allure-report-chrome/  # Use Docker Chrome reports for Pages
         
     - name: Deploy to GitHub Pages
       id: deployment

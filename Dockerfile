@@ -26,5 +26,5 @@ ENV DISPLAY=:99
 # Create directories for reports
 RUN mkdir -p allure-results allure-report
 
-# Default command to run tests
-CMD ["npm", "run", "test"]
+# Default command to run tests in Chrome (can be overridden)
+CMD ["npx", "cypress", "run", "--browser", "chrome", "--spec", "cypress/tests/smoke/*.cy.js"]

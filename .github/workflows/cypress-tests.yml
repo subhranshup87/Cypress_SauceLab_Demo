@@ -63,9 +63,20 @@ jobs:
       run: |
         if [ -d "allure-results" ]; then
           mkdir -p allure-results-${{ matrix.browser }}
-          cp -r allure-results/* allure-results-${{ matrix.browser }}/
-          # Add browser info to results
-          echo '{"name":"Browser","value":"${{ matrix.browser }}"}' > allure-results-${{ matrix.browser }}/environment.properties
+          # Copy all results and rename test files to avoid conflicts
+          for file in allure-results/*; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              # Add browser prefix to test result files to avoid overwrites
+              if [[ "$filename" == *"-result.json" ]] || [[ "$filename" == *"-container.json" ]]; then
+                cp "$file" "allure-results-${{ matrix.browser }}/${{ matrix.browser }}-$filename"
+              else
+                cp "$file" "allure-results-${{ matrix.browser }}/$filename"
+              fi
+            fi
+          done
+          # Create browser-specific environment info
+          echo "Browser=${{ matrix.browser }}" > allure-results-${{ matrix.browser }}/environment.properties
         fi
         
     - name: Upload Allure Results
@@ -111,23 +122,27 @@ jobs:
         
         # Copy Chrome results
         if [ -d "allure-results-chrome" ]; then
-          echo "✅ Found Chrome results"
+          echo "✅ Found Chrome results: $(ls -1 allure-results-chrome/ | wc -l) files"
           cp -r allure-results-chrome/* combined-allure-results/ 2>/dev/null || true
-          ls -la allure-results-chrome/
         else
           echo "❌ No Chrome results found"
         fi
         
         # Copy Electron results  
         if [ -d "allure-results-electron" ]; then
-          echo "✅ Found Electron results"
+          echo "✅ Found Electron results: $(ls -1 allure-results-electron/ | wc -l) files"
           cp -r allure-results-electron/* combined-allure-results/ 2>/dev/null || true
-          ls -la allure-results-electron/
         else
           echo "❌ No Electron results found"
         fi
         
-        echo "📁 Combined results:"
+        # Create combined environment file
+        echo "Creating combined environment..."
+        echo "Chrome_Tests=Yes" > combined-allure-results/environment.properties
+        echo "Electron_Tests=Yes" >> combined-allure-results/environment.properties
+        echo "Total_Browsers=2" >> combined-allure-results/environment.properties
+        
+        echo "📁 Combined results: $(ls -1 combined-allure-results/ | wc -l) files"
         ls -la combined-allure-results/
         
     - name: Generate Combined Allure Report

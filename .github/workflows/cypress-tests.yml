@@ -96,8 +96,40 @@ jobs:
       
     - name: Combine Allure Results
       run: |
-        npm run combine
-        echo "Combined results: $(ls -1 allure-results/ | wc -l) files"
+        mkdir -p allure-results
+        echo "📊 Combining results from both browsers..."
+        
+        # List downloaded artifacts structure
+        ls -la
+        
+        # Copy Chrome results with prefixes
+        if [ -d "allure-results-chrome" ]; then
+          echo "✅ Found Chrome results: $(ls -1 allure-results-chrome/ | wc -l) files"
+          for file in allure-results-chrome/*; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              cp "$file" "allure-results/chrome-$filename"
+            fi
+          done
+        else
+          echo "❌ No Chrome results found"
+        fi
+        
+        # Copy Electron results with prefixes
+        if [ -d "allure-results-electron" ]; then
+          echo "✅ Found Electron results: $(ls -1 allure-results-electron/ | wc -l) files"
+          for file in allure-results-electron/*; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              cp "$file" "allure-results/electron-$filename"
+            fi
+          done
+        else
+          echo "❌ No Electron results found"
+        fi
+        
+        echo "📁 Combined results: $(ls -1 allure-results/ | wc -l) files"
+        ls -la allure-results/
         
     - name: Generate Combined Allure Report
       run: npm run report

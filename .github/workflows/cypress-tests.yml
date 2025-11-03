@@ -47,37 +47,16 @@ jobs:
       run: npm install -g allure-commandline
       
     - name: Run Cypress tests
-      uses: cypress-io/github-action@v6
-      with:
-        browser: ${{ matrix.browser }}
-        spec: cypress/tests/smoke/*.cy.js
-        config: baseUrl=https://www.saucedemo.com
-        install: false
-        command: npx cypress run --browser ${{ matrix.browser }} --spec cypress/tests/smoke/*.cy.js
-      env:
-        # Enable Allure for both browsers - we'll handle Electron issues in config
-        CYPRESS_allure: true
-        
-    - name: Rename results for browser
-      if: always()
       run: |
-        if [ -d "allure-results" ]; then
-          mkdir -p allure-results-${{ matrix.browser }}
-          # Copy all results and rename test files to avoid conflicts
-          for file in allure-results/*; do
-            if [ -f "$file" ]; then
-              filename=$(basename "$file")
-              # Add browser prefix to test result files to avoid overwrites
-              if [[ "$filename" == *"-result.json" ]] || [[ "$filename" == *"-container.json" ]]; then
-                cp "$file" "allure-results-${{ matrix.browser }}/${{ matrix.browser }}-$filename"
-              else
-                cp "$file" "allure-results-${{ matrix.browser }}/$filename"
-              fi
-            fi
-          done
-          # Create browser-specific environment info
-          echo "Browser=${{ matrix.browser }}" > allure-results-${{ matrix.browser }}/environment.properties
+        if [ "${{ matrix.browser }}" = "chrome" ]; then
+          npm run test:chrome
+          npm run save:chrome
+        else
+          npm run test:electron
+          npm run save:electron
         fi
+      env:
+        CYPRESS_allure: true
         
     - name: Upload Allure Results
       if: always()
@@ -117,43 +96,11 @@ jobs:
       
     - name: Combine Allure Results
       run: |
-        mkdir -p combined-allure-results
-        echo "📊 Combining results from both browsers..."
-        
-        # Copy Chrome results
-        if [ -d "allure-results-chrome" ]; then
-          echo "✅ Found Chrome results: $(ls -1 allure-results-chrome/ | wc -l) files"
-          cp -r allure-results-chrome/* combined-allure-results/ 2>/dev/null || true
-        else
-          echo "❌ No Chrome results found"
-        fi
-        
-        # Copy Electron results  
-        if [ -d "allure-results-electron" ]; then
-          echo "✅ Found Electron results: $(ls -1 allure-results-electron/ | wc -l) files"
-          cp -r allure-results-electron/* combined-allure-results/ 2>/dev/null || true
-        else
-          echo "❌ No Electron results found"
-        fi
-        
-        # Create combined environment file
-        echo "Creating combined environment..."
-        echo "Chrome_Tests=Yes" > combined-allure-results/environment.properties
-        echo "Electron_Tests=Yes" >> combined-allure-results/environment.properties
-        echo "Total_Browsers=2" >> combined-allure-results/environment.properties
-        
-        echo "📁 Combined results: $(ls -1 combined-allure-results/ | wc -l) files"
-        ls -la combined-allure-results/
+        npm run combine
+        echo "Combined results: $(ls -1 allure-results/ | wc -l) files"
         
     - name: Generate Combined Allure Report
-      run: |
-        if [ -d "combined-allure-results" ] && [ "$(ls -A combined-allure-results)" ]; then
-          allure generate combined-allure-results --clean -o allure-report
-        else
-          echo "No test results found"
-          mkdir -p allure-report
-          echo "<h1>No Test Results Found</h1>" > allure-report/index.html
-        fi
+      run: npm run report
         
     - name: Upload Combined Allure Report
       if: always()

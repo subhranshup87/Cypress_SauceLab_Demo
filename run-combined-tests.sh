@@ -48,15 +48,39 @@ if [ -d "allure-results" ]; then
 fi
 
 echo "🔄 Combining results..."
-# Combine all results with proper handling
-cp -r allure-results-chrome/* combined-allure-results/ 2>/dev/null || true
-cp -r allure-results-electron/* combined-allure-results/ 2>/dev/null || true
+# Combine all results with proper handling to prevent overwrites
+echo "Processing Chrome results..."
+for file in allure-results-chrome/*; do
+  if [ -f "$file" ]; then
+    filename=$(basename "$file")
+    timestamp=$(date +%s%N | cut -b1-13)
+    extension="${filename##*.}"
+    basename_only="${filename%.*}"
+    new_filename="chrome-${timestamp}-${basename_only}.${extension}"
+    cp "$file" "combined-allure-results/$new_filename"
+    sleep 0.001  # Ensure unique timestamps
+  fi
+done
+
+echo "Processing Electron results..."
+for file in allure-results-electron/*; do
+  if [ -f "$file" ]; then
+    filename=$(basename "$file")
+    timestamp=$(date +%s%N | cut -b1-13)
+    extension="${filename##*.}"
+    basename_only="${filename%.*}"
+    new_filename="electron-${timestamp}-${basename_only}.${extension}"
+    cp "$file" "combined-allure-results/$new_filename"
+    sleep 0.001  # Ensure unique timestamps
+  fi
+done
 
 # Create comprehensive environment file
 echo "Creating combined environment file..."
-echo "Chrome_Tests=Yes" > combined-allure-results/environment.properties
-echo "Electron_Tests=Yes" >> combined-allure-results/environment.properties
+echo "Chrome_Tests=Executed" > combined-allure-results/environment.properties
+echo "Electron_Tests=Executed" >> combined-allure-results/environment.properties
 echo "Total_Browsers=2" >> combined-allure-results/environment.properties
+echo "Execution_Mode=Cross_Browser" >> combined-allure-results/environment.properties
 echo "Test_Date=$(date)" >> combined-allure-results/environment.properties
 
 echo "📊 Results summary:"

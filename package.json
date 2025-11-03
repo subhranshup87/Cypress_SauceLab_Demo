@@ -6,7 +6,8 @@
   "scripts": {
     "clean:results": "rm -rf allure-results allure-report cypress/videos cypress/screenshots",
     "test": "cypress run --browser chrome",
-    "test:electron": "cypress run --browser electron",
+    "test:electron": "CYPRESS_allure=false cypress run --browser electron --config defaultCommandTimeout=10000,pageLoadTimeout=15000",
+    "test:electron:headless": "CYPRESS_allure=false cypress run --browser electron --headless --config defaultCommandTimeout=10000,pageLoadTimeout=15000",
     "test:firefox": "cypress run --browser firefox",
     "test:headless": "cypress run",
     "test:docker": "./run-docker-tests.sh",

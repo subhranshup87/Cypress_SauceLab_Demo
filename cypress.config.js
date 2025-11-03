@@ -5,10 +5,13 @@ const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 module.exports = defineConfig({
   e2e: {
     env: {
-      allure: true,
+      allure: process.env.CYPRESS_allure !== 'false',
     },
     setupNodeEvents(on, config) {
-      allureWriter(on, config);
+      // Only setup Allure if not disabled
+      if (process.env.CYPRESS_allure !== 'false') {
+        allureWriter(on, config);
+      }
       on('file:preprocessor', createBundler());
       return config;
     },
@@ -17,5 +20,9 @@ module.exports = defineConfig({
     supportFile: 'cypress/support/e2e.js',
     defaultCommandTimeout: 5000,
     pageLoadTimeout: 10000,
+    // Electron-specific optimizations
+    chromeWebSecurity: false,
+    video: false,
+    screenshotOnRunFailure: true,
   },
 });

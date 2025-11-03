@@ -5,10 +5,10 @@ This project contains Cypress smoke tests for the SauceDemo web application with
 ## 🚀 Features
 
 - **Cypress E2E Tests**: Comprehensive smoke tests for SauceDemo application
-- **Cross-Browser Testing**: Support for Chrome and Electron browsers
+- **Chrome Browser Testing**: Automated testing in Chrome browser
 - **Allure Reporting**: Beautiful HTML reports with test results, screenshots, and videos
-- **GitHub Actions CI/CD**: Automated testing on multiple browsers with artifact publishing
-- **GitHub Pages**: Automated report deployment
+- **GitHub Actions CI/CD**: Automated testing with artifact publishing
+- **GitHub Pages**: Automated report deployment at [Test Reports](https://subhranshup87.github.io/Cypress_SauceLab_Demo/)
 - **Scheduled Testing**: Daily automated test runs
 
 ## 📋 Prerequisites
@@ -22,7 +22,7 @@ This project contains Cypress smoke tests for the SauceDemo web application with
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/subhranshup87/Cypress_SauceLab_Demo.git
    cd Cypress_SauceLab_Demo
    ```
 
@@ -38,97 +38,98 @@ This project contains Cypress smoke tests for the SauceDemo web application with
 
 ## 🧪 Running Tests
 
-### Local Execution
+### Available Commands
 
-1. **Run Chrome tests:**
-   ```bash
-   npm run test:chrome
-   ```
+```bash
+# Run tests in Chrome browser (default)
+npm test
 
-2. **Run Electron tests:**
-   ```bash
-   npm run test:electron
-   ```
+# Run tests with Allure reporting
+npm run test:chrome
 
-3. **Run both browsers:**
-   ```bash
-   npm run test:both
-   ```
+# Generate Allure report from results
+npm run report:generate
 
-4. **Run with complete reporting:**
-   ```bash
-   npm run report
-   ```
+# Open Allure report in browser
+npm run report:open
 
-5. **Run specific test:**
-   ```bash
-   npx cypress run --spec "cypress/tests/smoke/login.cy.js"
-   ```
+# Serve Allure report live
+npm run report:serve
 
-## 📊 Reports
+# Clean test artifacts
+npm run clean
+```
 
-### Allure Reports
+### Local Execution Example
 
-1. **Generate and view report:**
-   ```bash
-   npm run report
-   ```
+```bash
+# Run tests and generate report
+npm run test:chrome
+npm run report:generate
+npm run report:open
+## 📊 Test Reports
 
-2. **Access CI reports:**
-   - Reports are automatically generated and published as GitHub Pages
-   - Artifacts include test videos, screenshots, and HTML reports
-   - Access reports from the Actions tab in your GitHub repository
+- **Live Reports**: Available at [GitHub Pages](https://subhranshup87.github.io/Cypress_SauceLab_Demo/)
+- **Local Reports**: Generated in `allure-report/` folder after running tests
+- **Artifacts**: Available in GitHub Actions runs for failed tests (videos, screenshots)
 
-## ⚙️ GitHub Actions
+## 🏗️ CI/CD Pipeline
 
-### Workflow Features
+The GitHub Actions workflow automatically:
 
-- **Multi-browser testing**: Chrome and Electron in parallel
-- **Scheduled runs**: Daily at 9 AM UTC
-- **Manual triggers**: Workflow dispatch
-- **Artifact uploads**: Reports, videos, and screenshots
-- **GitHub Pages deployment**: Automatic report publishing
+1. **Triggers** on:
+   - Push to `main` or `develop` branches
+   - Pull requests to `main`
+   - Daily at 9 AM UTC
+   - Manual workflow dispatch
 
-### Workflow Triggers
-
-- Push to `main` or `develop` branches
-- Pull requests to `main`
-- Daily scheduled runs
-- Manual workflow dispatch
-
-### Secrets Configuration
-
-Add the following secrets to your GitHub repository (optional):
-
-- `CYPRESS_RECORD_KEY`: For Cypress Dashboard integration
+2. **Runs** Cypress tests in Chrome browser
+3. **Generates** Allure reports
+4. **Deploys** reports to GitHub Pages
+5. **Uploads** artifacts (videos/screenshots) on failures
 
 ## 📁 Project Structure
 
 ```
-Cypress_SauceLab_Demo/
-├── .github/
-│   └── workflows/
-│       └── cypress-tests.yml     # GitHub Actions workflow
+├── .github/workflows/
+│   └── cypress-tests.yml          # GitHub Actions workflow
 ├── cypress/
-│   ├── fixtures/                 # Test data
-│   ├── support/                  # Custom commands and configurations
+│   ├── fixtures/
+│   │   └── users.json            # Test data
+│   ├── support/
+│   │   ├── commands.js           # Custom commands
+│   │   ├── e2e.js               # Global config
+│   │   ├── pages/               # Page objects
+│   │   └── selectors/           # Element selectors
 │   └── tests/
-│       └── smoke/               # Smoke test suite
-├── allure-results/              # Test execution results
+│       └── smoke/               # Smoke test files
+├── allure-results/              # Raw test results
 ├── allure-report/               # Generated HTML reports
 ├── cypress.config.js            # Cypress configuration
-├── package.json                 # Node.js dependencies and scripts
-└── README.md                    # This file
+└── package.json                 # Dependencies and scripts
 ```
+
+## 🧪 Test Cases
+
+The smoke test suite includes:
+
+### Login Tests (`login.cy.js`)
+- ✅ Valid user login verification
+- ✅ Locked user error handling
+
+### Cart Tests (`cart.cy.js`)
+- ✅ Add items to cart functionality
+- ✅ Cart item verification
 
 ## 🔧 Configuration
 
-### Cypress Configuration
-
-Key configurations in `cypress.config.js`:
+### Cypress Configuration (`cypress.config.js`)
 - Base URL: `https://www.saucedemo.com`
-- Spec pattern: `cypress/tests/smoke/*.cy.js`
-- Allure reporting enabled (disabled for Electron to prevent conflicts)
+- Browser: Chrome (headless in CI)
+- Viewport: 1280x720
+- Video recording: On failure
+- Screenshot: On failure
+- Allure reporting: Enabled
 - Default timeouts configured
 
 ### Browser-Specific Settings
@@ -146,63 +147,49 @@ Key configurations in `cypress.config.js`:
 
 2. **Electron tests hanging:**
    - Allure plugin is automatically disabled for Electron
-   - Use `npm run test:electron` for optimized Electron testing
+### Environment Variables
+- `CYPRESS_allure=true`: Enables Allure reporting
 
-3. **Tests fail in CI:**
-   - Check browser compatibility
-   - Verify environment variables
-   - Review test timeouts for CI environment
+## 🚨 Troubleshooting
 
-4. **Dependencies issues:**
+### Common Issues
+
+1. **Tests failing locally:**
    ```bash
-   rm -rf node_modules package-lock.json
+   npm run clean
    npm install
+   npm run test:chrome
    ```
 
-### Debug Commands
+2. **Allure reports not generating:**
+   ```bash
+   npm install -g allure-commandline
+   npm run report:generate
+   ```
 
-```bash
-# Check Cypress installation
-npx cypress verify
+3. **Permission issues:**
+   ```bash
+   chmod +x scripts/*.sh  # If using shell scripts
+   ```
 
-# Debug test in interactive mode
-npx cypress open
+## 📈 Monitoring
 
-# Run tests with debug output
-DEBUG=cypress:* npm run test
-```
-
-## 📈 Continuous Integration
-
-### Branch Protection
-
-Recommended branch protection rules:
-- Require status checks to pass
-- Require up-to-date branches
-- Include administrators
-
-### Monitoring
-
-- Monitor test execution in GitHub Actions
-- Review Allure reports for test insights
-- Track test trends and failures
+- **GitHub Actions**: Check workflow status in the Actions tab
+- **Test Reports**: Monitor daily at the GitHub Pages URL
+- **Artifacts**: Download from failed workflow runs
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests locally: `npm run test:both`
+4. Add/update tests as needed
 5. Submit a pull request
 
-## 📝 Notes
+## 📝 License
 
-- Tests run against the live SauceDemo application
-- Allure integration provides detailed test reporting for Chrome
-- GitHub Actions provides automated CI/CD pipeline
-- Reports are preserved as artifacts and deployed to GitHub Pages
-- Cross-browser testing ensures compatibility across different environments
+This project is for demonstration purposes.
 
 ---
 
-© 2025 Cypress SauceDemo Test Suite
+**Live Test Reports**: [https://subhranshup87.github.io/Cypress_SauceLab_Demo/](https://subhranshup87.github.io/Cypress_SauceLab_Demo/)

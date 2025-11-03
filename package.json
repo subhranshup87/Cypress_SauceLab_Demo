@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test:chrome": "cypress run --browser chrome",
+    "test:chrome": "CYPRESS_allure=true cypress run --browser chrome",
     "report:generate": "allure generate allure-results --clean -o allure-report",
     "report:open": "allure open allure-report",
     "clean": "rm -rf allure-results allure-report cypress/videos cypress/screenshots",

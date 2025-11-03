@@ -24,8 +24,5 @@ yarn-error.log*
 # VSCode settings
 .vscode/
 
-# Misc
-package-lock.json
-
 # Ignore Allure history (if used)
 allure-history/

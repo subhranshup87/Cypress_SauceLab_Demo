@@ -1,5 +1,4 @@
 const { defineConfig } = require('cypress');
-const createBundler = require('@bahmutov/cypress-esbuild-preprocessor');
 const allureWriter = require('@shelex/cypress-allure-plugin/writer');
 
 module.exports = defineConfig({
@@ -9,7 +8,6 @@ module.exports = defineConfig({
     },
     setupNodeEvents(on, config) {
       allureWriter(on, config);
-      on('file:preprocessor', createBundler());
       return config;
     },
     baseUrl: 'https://www.saucedemo.com',

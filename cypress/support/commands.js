@@ -1,12 +1,12 @@
 import { loginSelectors } from './selectors/loginSelectors';
 
-// ==================== FIXTURE COMMANDS ====================
+// -------------------- FIXTURE COMMANDS --------------------
 // Custom command to load users fixture
 Cypress.Commands.add('loadUsers', () => {
   return cy.fixture('users').as('usersData');
 });
 
-// ==================== LOGIN COMMANDS ====================
+// -------------------- LOGIN COMMANDS --------------------
 // Command to login with different user types
 Cypress.Commands.add('loginAs', function(userRole) {
   const user = this.usersData.find(u => u.role === userRole);
